@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Every Park SLC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --forest:    #2d5016;
+      --moss:      #4a7c2f;
+      --sage:      #7aab5a;
+      --meadow:    #a8c97f;
+      --cream:     #f5f0e8;
+      --sand:      #e8dcc8;
+      --bark:      #6b4f2e;
+      --stone:     #8a7968;
+      --sky:       #b8d4e8;
+      --rust:      #c0622a;
+      --panel-w:   380px;
+      --header-h:  58px;
+      --filter-w:  300px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--forest);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      height: var(--header-h);
+      background: var(--forest);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+      z-index: 50;
+      flex-shrink: 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: var(--sage);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      color: var(--cream);
+      line-height: 1.1;
+    }
+
+    .logo-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.65rem;
+      color: var(--meadow);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .header-spacer { flex: 1; }
+
+    .credit-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 20px;
+      padding: 5px 12px 5px 8px;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .credit-badge:hover { background: rgba(255,255,255,.18); }
+    .credit-badge img {
+      width: 22px; height: 22px; border-radius: 50%;
+      object-fit: cover;
+      background: var(--sage);
+    }
+    .credit-badge-text {
+      font-size: 0.72rem;
+      color: var(--cream);
+      line-height: 1.3;
+    }
+    .credit-badge-text strong {
+      display: block;
+      font-weight: 600;
+      font-size: 0.78rem;
+    }
+
+    .suggest-btn {
+      background: var(--rust);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 7px 15px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .2s, transform .1s;
+      white-space: nowrap;
+    }
+    .suggest-btn:hover { background: #a8541f; transform: translateY(-1px); }
+
+    /* ── BODY LAYOUT ── */
+    .app-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── FILTER SIDEBAR ── */
+    .filter-sidebar {
+      width: var(--filter-w);
+      background: var(--cream);
+      border-right: 1px solid var(--sand);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .filter-inner {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--sand) transparent;
+    }
+
+    .search-wrap {
+      position: relative;
+      margin-bottom: 14px;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 9px 12px 9px 36px;
+      border: 1.5px solid var(--sand);
+      border-radius: 8px;
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      color: var(--forest);
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-wrap input:focus { border-color: var(--moss); }
+    .search-wrap input::placeholder { color: var(--stone); }
+    .search-icon {
+      position: absolute;
+      left: 10px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--stone);
+      font-size: 15px;
+      pointer-events: none;
+    }
+
+    .filter-section { margin-bottom: 16px; }
+
+    .filter-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--stone);
+      margin-bottom: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .city-select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1.5px solid var(--sand);
+      border-radius: 8px;
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      color: var(--forest);
+      outline: none;
+      cursor: pointer;
+    }
+    .city-select:focus { border-color: var(--moss); }
+
+    .rating-row {
+      display: flex;
+      gap: 6px;
+    }
+    .rating-pill {
+      flex: 1;
+      padding: 6px 4px;
+      border: 1.5px solid var(--sand);
+      border-radius: 20px;
+      background: #fff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--stone);
+      cursor: pointer;
+      text-align: center;
+      transition: all .15s;
+    }
+    .rating-pill.active {
+      background: var(--moss);
+      border-color: var(--moss);
+      color: #fff;
+    }
+    .rating-pill:hover:not(.active) { border-color: var(--moss); color: var(--moss); }
+
+    .amenity-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .amenity-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 9px;
+      border: 1.5px solid var(--sand);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      transition: all .15s;
+      font-size: 0.78rem;
+      color: var(--bark);
+      font-weight: 500;
+      user-select: none;
+    }
+    .amenity-chip.active {
+      background: var(--forest);
+      border-color: var(--forest);
+      color: var(--cream);
+    }
+    .amenity-chip:hover:not(.active) { border-color: var(--moss); }
+    .amenity-chip .chip-icon { font-size: 14px; flex-shrink: 0; }
+
+    .filter-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--sand);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .result-count {
+      font-size: 0.8rem;
+      color: var(--stone);
+      font-weight: 500;
+    }
+    .result-count strong { color: var(--forest); }
+
+    .clear-btn {
+      font-size: 0.78rem;
+      color: var(--rust);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background .15s;
+    }
+    .clear-btn:hover { background: rgba(192,98,42,.1); }
+
+    /* ── MAP ── */
+    #map {
+      flex: 1;
+      height: 100%;
+    }
+
+    /* ── DETAIL PANEL ── */
+    .detail-panel {
+      position: absolute;
+      top: 0; right: 0;
+      width: var(--panel-w);
+      height: 100%;
+      background: var(--cream);
+      border-left: 1px solid var(--sand);
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      box-shadow: -4px 0 24px rgba(0,0,0,.1);
+    }
+    .detail-panel.open { transform: translateX(0); }
+
+    .panel-header {
+      padding: 20px 20px 14px;
+      background: var(--forest);
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .panel-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      width: 30px; height: 30px;
+      background: rgba(255,255,255,.15);
+      border: none;
+      border-radius: 50%;
+      color: var(--cream);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .panel-close:hover { background: rgba(255,255,255,.28); }
+
+    .panel-park-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      color: var(--cream);
+      line-height: 1.25;
+      padding-right: 36px;
+      margin-bottom: 4px;
+    }
+
+    .panel-city {
+      font-size: 0.8rem;
+      color: var(--meadow);
+      font-weight: 500;
+      letter-spacing: .04em;
+    }
+
+    .panel-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 10px;
+    }
+
+    .star {
+      font-size: 14px;
+      color: #f0c040;
+    }
+    .star.empty { color: rgba(255,255,255,.3); }
+    .rating-label {
+      font-size: 0.72rem;
+      color: var(--meadow);
+      margin-left: 4px;
+    }
+
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--sand) transparent;
+    }
+
+    .panel-notes {
+      background: #fff;
+      border: 1px solid var(--sand);
+      border-left: 3px solid var(--sage);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--bark);
+      margin-bottom: 18px;
+      font-style: italic;
+    }
+
+    .amenity-section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--stone);
+      margin-bottom: 10px;
+    }
+
+    .amenity-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .amenity-tag {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+    .amenity-tag.yes {
+      background: #e8f4e0;
+      color: var(--forest);
+      border: 1px solid #c4deb0;
+    }
+    .amenity-tag.no {
+      background: #f0ede8;
+      color: var(--stone);
+      border: 1px solid #ddd8ce;
+      opacity: 0.6;
+    }
+
+    .panel-actions {
+      padding: 14px 20px 20px;
+      border-top: 1px solid var(--sand);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-directions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--moss);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .btn-directions:hover { background: var(--forest); }
+
+    .btn-suggest {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--stone);
+      border: 1.5px solid var(--sand);
+      border-radius: 10px;
+      padding: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .2s;
+    }
+    .btn-suggest:hover { border-color: var(--rust); color: var(--rust); }
+
+    /* ── CUSTOM MAP MARKER ── */
+    .map-marker {
+      width: 26px; height: 26px;
+      background: var(--moss);
+      border: 2.5px solid #fff;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 2px 6px rgba(0,0,0,.3);
+      cursor: pointer;
+      transition: transform .15s, background .15s;
+    }
+    .map-marker.active, .map-marker:hover {
+      background: var(--rust);
+      transform: rotate(-45deg) scale(1.25);
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🌲</div>
+    <div class="logo-text">
+      Every Park SLC
+      <span class="logo-sub">Salt Lake County · 489 parks</span>
+    </div>
+  </div>
+
+  <div class="header-spacer"></div>
+
+  <a href="https://citycastslc.com" target="_blank" rel="noopener" class="credit-badge" title="Data by City Cast SLC">
+    <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:13px;">📻</div>
+    <div class="credit-badge-text">
+      <strong>City Cast SLC</strong>
+      Data source
+    </div>
+  </a>
+
+  <a href="YOUR_GOOGLE_FORM_URL" target="_blank" rel="noopener" class="suggest-btn">
+    ✏️ Suggest a change
+  </a>
+</header>
+
+<!-- BODY -->
+<div class="app-body">
+
+  <!-- FILTER SIDEBAR -->
+  <aside class="filter-sidebar">
+    <div class="filter-inner">
+
+      <div class="filter-section">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search parks…" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-label">City</div>
+        <select id="citySelect" class="city-select">
+          <option value="">All cities</option>
+        </select>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-label">Min City Cast Rating</div>
+        <div class="rating-row" id="ratingFilter">
+          <div class="rating-pill" data-rating="1">⭐ 1+</div>
+          <div class="rating-pill" data-rating="2">⭐ 2+</div>
+          <div class="rating-pill" data-rating="3">⭐ 3+</div>
+          <div class="rating-pill" data-rating="4">⭐ 4+</div>
+          <div class="rating-pill" data-rating="5">⭐ 5</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-label">Amenities <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:.68rem;">(show parks with…)</span></div>
+        <div class="amenity-grid" id="amenityFilters"></div>
+      </div>
+
+    </div>
+
+    <div class="filter-footer">
+      <div class="result-count"><strong id="visibleCount">489</strong> parks shown</div>
+      <button class="clear-btn" id="clearFilters">Clear all</button>
+    </div>
+  </aside>
+
+  <!-- MAP -->
+  <div id="map"></div>
+
+  <!-- DETAIL PANEL -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="panel-header">
+      <button class="panel-close" id="panelClose">✕</button>
+      <div class="panel-park-name" id="panelName">Park Name</div>
+      <div class="panel-city" id="panelCity">City, UT</div>
+      <div class="panel-rating" id="panelRating"></div>
+    </div>
+    <div class="panel-body">
+      <div id="panelNotes"></div>
+      <div class="amenity-section-title">Amenities</div>
+      <div class="amenity-list" id="panelAmenities"></div>
+    </div>
+    <div class="panel-actions">
+      <a id="panelDirections" href="#" target="_blank" rel="noopener" class="btn-directions">
+        🗺️ Get directions in Google Maps
+      </a>
+      <a href="YOUR_GOOGLE_FORM_URL" target="_blank" rel="noopener" class="btn-suggest">
+        ✏️ Suggest a correction for this park
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<script src="parks.js"></script>
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────
+const AMENITY_META = [
+  { key: 'Bathrooms',                  icon: '🚻', label: 'Bathrooms' },
+  { key: 'Pool',                       icon: '🏊', label: 'Pool' },
+  { key: 'Splash Pad',                 icon: '💦', label: 'Splash Pad' },
+  { key: 'Off Leash Dog Area',         icon: '🐕', label: 'Dog Park' },
+  { key: 'Kid Play Area',              icon: '🛝', label: 'Playground' },
+  { key: 'Toddler Friendly Play Area', icon: '👶', label: 'Toddler Area' },
+  { key: 'Picnic Tables',              icon: '🧺', label: 'Picnic Tables' },
+  { key: 'Pavillion',                  icon: '⛺', label: 'Pavilion' },
+  { key: 'Grills',                     icon: '🔥', label: 'Grills' },
+  { key: 'Gardens',                    icon: '🌻', label: 'Gardens' },
+  { key: 'Water Fountain',             icon: '🚰', label: 'Water Fountain' },
+  { key: 'Lighting After Dark',        icon: '💡', label: 'Night Lighting' },
+  { key: 'Basketball Court',           icon: '🏀', label: 'Basketball' },
+  { key: 'Tennis Courts',              icon: '🎾', label: 'Tennis' },
+  { key: 'Pickleball Courts',          icon: '🏓', label: 'Pickleball' },
+  { key: 'Volleyball Court',           icon: '🏐', label: 'Volleyball' },
+  { key: 'Beach Volleyball Court',     icon: '🏐', label: 'Beach Volleyball' },
+  { key: 'Soccer Field',               icon: '⚽', label: 'Soccer' },
+  { key: 'Baseball Diamond',           icon: '⚾', label: 'Baseball' },
+  { key: 'Softball Diamond',           icon: '🥎', label: 'Softball' },
+  { key: 'Futsal Court',               icon: '⚽', label: 'Futsal' },
+  { key: 'Disc Golf',                  icon: '🥏', label: 'Disc Golf' },
+  { key: 'Skate Park',                 icon: '🛹', label: 'Skate Park' },
+  { key: 'Fitness Area',               icon: '💪', label: 'Fitness Area' },
+  { key: 'Pond',                       icon: '🦆', label: 'Pond' },
+  { key: 'River or Stream',            icon: '🏞️', label: 'River/Stream' },
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────
+let map, markers = [], selectedMarkerId = null;
+let activeAmenities = new Set();
+let activeRating = null;
+let activeCity = '';
+let searchQuery = '';
+
+// ── INIT MAP ─────────────────────────────────────────────────────────────
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: { lat: 40.7608, lng: -111.891 },
+    zoom: 11,
+    mapTypeId: 'terrain',
+    styles: [
+      { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#c8e6c0' }] },
+      { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#2d5016' }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#a0c4d8' }] },
+      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#f0ebe2' }] },
+      { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#e0d8c8' }] },
+      { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#f5f0e8' }] },
+      { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+      { featureType: 'transit', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    ],
+    disableDefaultUI: false,
+    zoomControl: true,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
+  });
+
+  buildCitySelect();
+  buildAmenityFilters();
+  plotMarkers();
+  bindEvents();
+}
+
+// ── BUILD UI ─────────────────────────────────────────────────────────────
+function buildCitySelect() {
+  const cities = [...new Set(PARKS_DATA.map(p => p.city).filter(Boolean))].sort();
+  const sel = document.getElementById('citySelect');
+  cities.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+function buildAmenityFilters() {
+  const grid = document.getElementById('amenityFilters');
+  AMENITY_META.forEach(({ key, icon, label }) => {
+    const chip = document.createElement('div');
+    chip.className = 'amenity-chip';
+    chip.dataset.key = key;
+    chip.innerHTML = `<span class="chip-icon">${icon}</span><span>${label}</span>`;
+    chip.addEventListener('click', () => toggleAmenity(key, chip));
+    grid.appendChild(chip);
+  });
+}
+
+// ── MARKERS ──────────────────────────────────────────────────────────────
+function plotMarkers() {
+  markers.forEach(m => { m.marker.setMap(null); });
+  markers = [];
+
+  const filtered = getFiltered();
+  document.getElementById('visibleCount').textContent = filtered.length;
+
+  filtered.forEach(park => {
+    const el = document.createElement('div');
+    el.className = 'map-marker';
+
+    const overlay = new google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: park.lat, lng: park.lng },
+      content: el,
+      title: park.name,
+    });
+
+    el.addEventListener('click', () => openPanel(park, el));
+    markers.push({ id: park.id, marker: overlay, el, park });
+  });
+}
+
+// ── FILTER LOGIC ─────────────────────────────────────────────────────────
+function getFiltered() {
+  return PARKS_DATA.filter(park => {
+    if (searchQuery && !park.name.toLowerCase().includes(searchQuery)) return false;
+    if (activeCity && park.city !== activeCity) return false;
+    if (activeRating && (park.rating == null || park.rating < activeRating)) return false;
+    for (const key of activeAmenities) {
+      if (!park.amenities[key]) return false;
+    }
+    return true;
+  });
+}
+
+function applyFilters() {
+  // Clear selected panel if park no longer visible
+  if (selectedMarkerId) {
+    const still = getFiltered().find(p => p.id === selectedMarkerId);
+    if (!still) closePanel();
+  }
+  plotMarkers();
+}
+
+function toggleAmenity(key, chip) {
+  if (activeAmenities.has(key)) {
+    activeAmenities.delete(key);
+    chip.classList.remove('active');
+  } else {
+    activeAmenities.add(key);
+    chip.classList.add('active');
+  }
+  applyFilters();
+}
+
+// ── EVENTS ───────────────────────────────────────────────────────────────
+function bindEvents() {
+  document.getElementById('searchInput').addEventListener('input', e => {
+    searchQuery = e.target.value.toLowerCase().trim();
+    applyFilters();
+  });
+
+  document.getElementById('citySelect').addEventListener('change', e => {
+    activeCity = e.target.value;
+    applyFilters();
+  });
+
+  document.getElementById('ratingFilter').addEventListener('click', e => {
+    const pill = e.target.closest('.rating-pill');
+    if (!pill) return;
+    const val = parseInt(pill.dataset.rating);
+    if (activeRating === val) {
+      activeRating = null;
+      pill.classList.remove('active');
+    } else {
+      document.querySelectorAll('.rating-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      activeRating = val;
+    }
+    applyFilters();
+  });
+
+  document.getElementById('clearFilters').addEventListener('click', () => {
+    activeAmenities.clear();
+    activeRating = null;
+    activeCity = '';
+    searchQuery = '';
+    document.getElementById('searchInput').value = '';
+    document.getElementById('citySelect').value = '';
+    document.querySelectorAll('.rating-pill').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.amenity-chip').forEach(c => c.classList.remove('active'));
+    applyFilters();
+  });
+
+  document.getElementById('panelClose').addEventListener('click', closePanel);
+}
+
+// ── DETAIL PANEL ─────────────────────────────────────────────────────────
+function openPanel(park, markerEl) {
+  // Reset previous active marker
+  markers.forEach(m => m.el.classList.remove('active'));
+  markerEl.classList.add('active');
+  selectedMarkerId = park.id;
+
+  document.getElementById('panelName').textContent = park.name;
+  document.getElementById('panelCity').textContent = `${park.city}, UT ${park.zip}`;
+
+  // Rating stars
+  const ratingEl = document.getElementById('panelRating');
+  if (park.rating) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+      stars += `<span class="star ${i <= park.rating ? '' : 'empty'}">★</span>`;
+    }
+    ratingEl.innerHTML = stars + `<span class="rating-label">City Cast rating</span>`;
+  } else {
+    ratingEl.innerHTML = '';
+  }
+
+  // Notes
+  const notesEl = document.getElementById('panelNotes');
+  notesEl.innerHTML = park.notes
+    ? `<div class="panel-notes">"${park.notes}"</div>`
+    : '';
+
+  // Amenities
+  const amenEl = document.getElementById('panelAmenities');
+  amenEl.innerHTML = '';
+  AMENITY_META.forEach(({ key, icon, label }) => {
+    const has = park.amenities[key];
+    const tag = document.createElement('div');
+    tag.className = `amenity-tag ${has ? 'yes' : 'no'}`;
+    tag.innerHTML = `${icon} ${label}`;
+    amenEl.appendChild(tag);
+  });
+
+  // Directions
+  document.getElementById('panelDirections').href = park.directionsUrl || `https://www.google.com/maps/search/?api=1&query=${park.lat},${park.lng}`;
+
+  document.getElementById('detailPanel').classList.add('open');
+
+  // Pan map to show marker with panel offset
+  map.panTo({ lat: park.lat, lng: park.lng });
+}
+
+function closePanel() {
+  document.getElementById('detailPanel').classList.remove('open');
+  markers.forEach(m => m.el.classList.remove('active'));
+  selectedMarkerId = null;
+}
+</script>
+
+<!-- Replace YOUR_GOOGLE_MAPS_API_KEY with your actual key -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=marker&callback=initMap"
+  async defer>
+</script>
+
+</body>
+</html>

@@ -499,6 +499,130 @@
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 3px; }
+
+    /* ── SHEET HANDLE (mobile only) ── */
+    .sheet-handle { display: none; }
+
+    /* ── FILTER MOBILE HEADER (mobile only) ── */
+    .filter-mobile-header { display: none; }
+
+    /* ── FILTER FAB (mobile only) ── */
+    .filter-fab { display: none; }
+
+    /* ── MOBILE BACKDROP ── */
+    .mobile-backdrop {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 38;
+    }
+    .mobile-backdrop.visible { display: block; }
+
+    /* ── MOBILE LAYOUT ── */
+    @media (max-width: 768px) {
+      /* Header */
+      .credit-badge-text { display: none; }
+      .credit-badge { padding: 5px 8px; }
+      .suggest-btn .btn-text { display: none; }
+      .suggest-btn { padding: 7px 10px; }
+
+      /* Filter sidebar → bottom sheet */
+      .filter-sidebar {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        width: 100%;
+        height: 78vh;
+        border-right: none;
+        border-top: 1px solid var(--sand);
+        border-radius: 20px 20px 0 0;
+        transform: translateY(100%);
+        transition: transform .3s cubic-bezier(.4,0,.2,1);
+        z-index: 40;
+        box-shadow: 0 -4px 32px rgba(0,0,0,.18);
+      }
+      .filter-sidebar.open { transform: translateY(0); }
+
+      /* Sheet handle */
+      .sheet-handle {
+        display: block;
+        width: 40px; height: 4px;
+        background: var(--sand);
+        border-radius: 2px;
+        margin: 12px auto 0;
+        flex-shrink: 0;
+      }
+
+      /* Filter mobile header */
+      .filter-mobile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px 4px;
+        flex-shrink: 0;
+      }
+      .filter-mobile-header span {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.05rem;
+        color: var(--forest);
+      }
+      .filter-mobile-close {
+        width: 30px; height: 30px;
+        background: var(--sand);
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 15px;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--forest);
+      }
+
+      /* Detail panel → bottom sheet */
+      .detail-panel {
+        top: auto;
+        bottom: 0; left: 0; right: 0;
+        width: 100%;
+        height: 75vh;
+        border-left: none;
+        border-top: 1px solid var(--sand);
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -4px 32px rgba(0,0,0,.18);
+        transform: translateY(100%);
+      }
+      .detail-panel.open { transform: translateY(0); }
+
+      /* Filter FAB */
+      .filter-fab {
+        display: flex;
+        position: absolute;
+        bottom: 20px; left: 16px;
+        z-index: 35;
+        background: var(--forest);
+        color: var(--cream);
+        border: none;
+        border-radius: 24px;
+        padding: 11px 18px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        align-items: center;
+        gap: 7px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.3);
+        transition: background .2s, transform .1s;
+      }
+      .filter-fab:active { transform: scale(.97); }
+      .filter-fab .fab-badge {
+        background: var(--rust);
+        color: #fff;
+        border-radius: 10px;
+        font-size: 0.72rem;
+        padding: 1px 6px;
+        font-weight: 700;
+        min-width: 18px;
+        text-align: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -515,7 +639,7 @@
 
   <div class="header-spacer"></div>
 
-  <a href="https://citycastslc.com" target="_blank" rel="noopener" class="credit-badge" title="Data by City Cast SLC">
+  <a href="https://saltlake.citycast.fm" target="_blank" rel="noopener" class="credit-badge" title="Data by City Cast SLC">
     <div style="width:22px;height:22px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:13px;">📻</div>
     <div class="credit-badge-text">
       <strong>City Cast SLC</strong>
@@ -524,7 +648,7 @@
   </a>
 
   <a href="https://docs.google.com/forms/d/e/1FAIpQLSfJdW_6chVEk-UZDven6SKw1-04BRRF5cW2gVlMht0ilCd81Q/viewform?usp=dialog" target="_blank" rel="noopener" class="suggest-btn">
-    ✏️ Suggest a change
+    ✏️ <span class="btn-text">Suggest a change</span>
   </a>
 </header>
 
@@ -532,7 +656,12 @@
 <div class="app-body">
 
   <!-- FILTER SIDEBAR -->
-  <aside class="filter-sidebar">
+  <aside class="filter-sidebar" id="filterSidebar">
+    <div class="sheet-handle"></div>
+    <div class="filter-mobile-header">
+      <span>Filters</span>
+      <button class="filter-mobile-close" id="filterClose">✕</button>
+    </div>
     <div class="filter-inner">
 
       <div class="filter-section">
@@ -576,8 +705,15 @@
   <!-- MAP -->
   <div id="map"></div>
 
+  <!-- MOBILE BACKDROP -->
+  <div class="mobile-backdrop" id="mobileBackdrop"></div>
+
+  <!-- FILTER FAB (mobile only) -->
+  <button class="filter-fab" id="filterFab">🔍 Filters</button>
+
   <!-- DETAIL PANEL -->
   <div class="detail-panel" id="detailPanel">
+    <div class="sheet-handle"></div>
     <div class="panel-header">
       <button class="panel-close" id="panelClose">✕</button>
       <div class="panel-park-name" id="panelName">Park Name</div>
@@ -639,6 +775,36 @@ let activeAmenities = new Set();
 let activeRating = null;
 let activeCity = '';
 let searchQuery = '';
+
+// ── MOBILE HELPERS ───────────────────────────────────────────────────────
+function isMobile() { return window.matchMedia('(max-width: 768px)').matches; }
+
+function openFilterSheet() {
+  document.getElementById('filterSidebar').classList.add('open');
+  document.getElementById('mobileBackdrop').classList.add('visible');
+  document.getElementById('filterFab').style.display = 'none';
+}
+
+function closeFilterSheet() {
+  document.getElementById('filterSidebar').classList.remove('open');
+  document.getElementById('mobileBackdrop').classList.remove('visible');
+  if (!document.getElementById('detailPanel').classList.contains('open')) {
+    document.getElementById('filterFab').style.display = '';
+  }
+}
+
+function updateFabBadge() {
+  if (!isMobile()) return;
+  const count = activeAmenities.size + (activeRating ? 1 : 0) + (activeCity ? 1 : 0) + (searchQuery ? 1 : 0);
+  const fab = document.getElementById('filterFab');
+  const existing = fab.querySelector('.fab-badge');
+  if (count > 0) {
+    if (existing) { existing.textContent = count; }
+    else { fab.insertAdjacentHTML('beforeend', `<span class="fab-badge">${count}</span>`); }
+  } else {
+    if (existing) existing.remove();
+  }
+}
 
 // ── INIT MAP ─────────────────────────────────────────────────────────────
 function initMap() {
@@ -734,12 +900,12 @@ function getFiltered() {
 }
 
 function applyFilters() {
-  // Clear selected panel if park no longer visible
   if (selectedMarkerId) {
     const still = getFiltered().find(p => p.id === selectedMarkerId);
     if (!still) closePanel();
   }
   plotMarkers();
+  updateFabBadge();
 }
 
 function toggleAmenity(key, chip) {
@@ -793,6 +959,14 @@ function bindEvents() {
   });
 
   document.getElementById('panelClose').addEventListener('click', closePanel);
+
+  // Mobile sheet controls
+  document.getElementById('filterFab').addEventListener('click', openFilterSheet);
+  document.getElementById('filterClose').addEventListener('click', closeFilterSheet);
+  document.getElementById('mobileBackdrop').addEventListener('click', () => {
+    closeFilterSheet();
+    closePanel();
+  });
 }
 
 // ── DETAIL PANEL ─────────────────────────────────────────────────────────
@@ -854,7 +1028,12 @@ function openPanel(park, marker) {
 
   document.getElementById('detailPanel').classList.add('open');
 
-  // Pan map to show marker with panel offset
+  if (isMobile()) {
+    closeFilterSheet();
+    document.getElementById('mobileBackdrop').classList.add('visible');
+    document.getElementById('filterFab').style.display = 'none';
+  }
+
   map.panTo({ lat: park.lat, lng: park.lng });
 }
 
@@ -869,6 +1048,11 @@ function closePanel() {
     strokeWeight: 2,
   }));
   selectedMarkerId = null;
+
+  if (isMobile()) {
+    document.getElementById('mobileBackdrop').classList.remove('visible');
+    document.getElementById('filterFab').style.display = '';
+  }
 }
 </script>
 

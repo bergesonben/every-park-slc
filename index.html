@@ -520,8 +520,27 @@
     }
     .mobile-backdrop.visible { display: block; }
 
+    /* ── FOOTER ── */
+    footer {
+      height: 32px;
+      background: var(--sand);
+      border-top: 1px solid #d9cebc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    footer a {
+      font-size: 0.75rem;
+      color: var(--stone);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    footer a:hover { color: var(--forest); }
+
     /* ── MOBILE LAYOUT ── */
     @media (max-width: 768px) {
+      footer { display: none; }
       /* Header */
       .credit-badge-text { display: none; }
       .credit-badge { padding: 5px 8px; }
@@ -737,6 +756,10 @@
   </div>
 
 </div>
+
+<footer>
+  <a href="https://github.com/bergesonben/every-park-slc" target="_blank" rel="noopener">View source on GitHub</a>
+</footer>
 
 <script src="parks.js"></script>
 <script>

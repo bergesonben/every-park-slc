@@ -523,7 +523,7 @@
     </div>
   </a>
 
-  <a href="YOUR_GOOGLE_FORM_URL" target="_blank" rel="noopener" class="suggest-btn">
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSfJdW_6chVEk-UZDven6SKw1-04BRRF5cW2gVlMht0ilCd81Q/viewform?usp=dialog" target="_blank" rel="noopener" class="suggest-btn">
     ✏️ Suggest a change
   </a>
 </header>
@@ -593,7 +593,7 @@
       <a id="panelDirections" href="#" target="_blank" rel="noopener" class="btn-directions">
         🗺️ Get directions in Google Maps
       </a>
-      <a href="YOUR_GOOGLE_FORM_URL" target="_blank" rel="noopener" class="btn-suggest">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSfJdW_6chVEk-UZDven6SKw1-04BRRF5cW2gVlMht0ilCd81Q/viewform?usp=dialog" target="_blank" rel="noopener" class="btn-suggest">
         ✏️ Suggest a correction for this park
       </a>
     </div>
@@ -701,18 +701,22 @@ function plotMarkers() {
   document.getElementById('visibleCount').textContent = filtered.length;
 
   filtered.forEach(park => {
-    const el = document.createElement('div');
-    el.className = 'map-marker';
-
-    const overlay = new google.maps.marker.AdvancedMarkerElement({
+    const marker = new google.maps.Marker({
       map,
       position: { lat: park.lat, lng: park.lng },
-      content: el,
       title: park.name,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 7,
+        fillColor: '#4a7c2f',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 2,
+      }
     });
 
-    el.addEventListener('click', () => openPanel(park, el));
-    markers.push({ id: park.id, marker: overlay, el, park });
+    marker.addListener('click', () => openPanel(park, marker));
+    markers.push({ id: park.id, marker, park });
   });
 }
 
@@ -792,10 +796,25 @@ function bindEvents() {
 }
 
 // ── DETAIL PANEL ─────────────────────────────────────────────────────────
-function openPanel(park, markerEl) {
+function openPanel(park, marker) {
   // Reset previous active marker
-  markers.forEach(m => m.el.classList.remove('active'));
-  markerEl.classList.add('active');
+  markers.forEach(m => m.marker.setIcon({
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 7,
+    fillColor: '#4a7c2f',
+    fillOpacity: 1,
+    strokeColor: '#ffffff',
+    strokeWeight: 2,
+  }));
+  // Highlight selected
+  marker.setIcon({
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 9,
+    fillColor: '#c0622a',
+    fillOpacity: 1,
+    strokeColor: '#ffffff',
+    strokeWeight: 2.5,
+  });
   selectedMarkerId = park.id;
 
   document.getElementById('panelName').textContent = park.name;
@@ -841,14 +860,21 @@ function openPanel(park, markerEl) {
 
 function closePanel() {
   document.getElementById('detailPanel').classList.remove('open');
-  markers.forEach(m => m.el.classList.remove('active'));
+  markers.forEach(m => m.marker.setIcon({
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 7,
+    fillColor: '#4a7c2f',
+    fillOpacity: 1,
+    strokeColor: '#ffffff',
+    strokeWeight: 2,
+  }));
   selectedMarkerId = null;
 }
 </script>
 
 <!-- Replace YOUR_GOOGLE_MAPS_API_KEY with your actual key -->
 <script
-  src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=marker&callback=initMap"
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0l5Yl2IQnlrXJClcaa5-kZE5gRB2c0mg&loading=async&callback=initMap"
   async defer>
 </script>
 
